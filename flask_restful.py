@@ -1,8 +1,18 @@
 from flask import Flask, abort, request, jsonify
 from flask import make_response
-
+from flask.ext.httpauth import HTTPBasicAuth
 app = Flask(__name__)
+#添加认证机制基于http协议basic和Digest
+auth = HTTPBasicAuth()
+@auth.get_password
+def get_password(username):   #get_password 函数是一个回调函数，Flask-HTTPAuth 使用它来获取给定用户的密码。
+    if username == 'miguel':
+        return 'python'
+    return None
 
+@auth.error_handler  #error_handler 回调函数是用于给客户端发送未授权错误代码
+def unauthorized():
+    return make_response(jsonify({'error': 'Unauthorized access'}), 401)
 #测试数据暂时存放处
 tasks=[ {
         'id': 1,
@@ -18,6 +28,7 @@ tasks=[ {
     }]
 
 @app.route('/get_task/', methods=['GET'])
+@auth.login_required
 def get_task():
     if not request.args or 'id' not in request.args:
         # 没有指定id则返回全部
