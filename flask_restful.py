@@ -75,8 +75,19 @@ def update_task(task_id):
     task[0]['title'] = request.json.get('title', task[0]['title'])
     task[0]['description'] = request.json.get('description', task[0]['description'])
     task[0]['done'] = request.json.get('done', task[0]['done'])
-
     return jsonify({'task': task[0]})
+#删除delete
+@app.route('/delete/<int:task_id>', methods=['DELETE'])
+def delete_task(task_id):
+    task = filter(lambda t: t['id'] == task_id, tasks)
+    task=list(task)
+    if len(task) == 0:
+        abort(404)
+    print('-----------------------')
+    tasks.remove(task[0])
+    return jsonify({'result': True})
+
+
 
 if __name__ == '__main__':
     app.run()
